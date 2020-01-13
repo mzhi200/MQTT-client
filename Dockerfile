@@ -8,7 +8,8 @@ RUN go build -mod=vendor -tags netgo
 
 
 #Execute
-FROM alpine:latest
+FROM scratch
+#FROM alpine:latest
 
 WORKDIR /opt/MQTT-client
 COPY --from=Builder /opt/MQTT-client .
