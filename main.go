@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"log"
+	//"log"
 	"os"
 	"time"
 )
@@ -14,11 +14,11 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 }
 
 func main() {
-	fmt.Println("MQTT-Client start...")
+	sysLog := mqttClientLog{}
+	sysLog.Init(os.Stdout, LogLevelDebug)
+	sysLog.Info("MQTT-Client start...")
 
-
-	mqtt.DEBUG = log.New(os.Stdout, "", 0)
-	mqtt.ERROR = log.New(os.Stdout, "", 0)
+	mqttPackageTraceInit(os.Stdout, MqttTraceTypeDebug|MqttTraceTypeError, 0)
 	opts := mqtt.NewClientOptions().AddBroker("tcp://183.230.40.96:1883").SetClientID("Test-Mqtt")
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetDefaultPublishHandler(f)
