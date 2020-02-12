@@ -13,10 +13,15 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
 
+type mqttUserdData struct {
+	log mqttLog
+}
+
 func main() {
-	sysLog := mqttClientLog{}
-	sysLog.Init(os.Stdout, LogLevelDebug)
-	sysLog.Info("MQTT-Client start...")
+	ueData := mqttUserdData{}
+	ueData.log = &mqttClientLog{}
+	ueData.log.Init(os.Stdout, LogLevelDebug)
+	ueData.log.Info("MQTT-Client start...")
 
 	mqttPackageTraceInit(os.Stdout, MqttTraceTypeDebug|MqttTraceTypeError, 0)
 	opts := mqtt.NewClientOptions().AddBroker("tcp://183.230.40.96:1883").SetClientID("Test-Mqtt")
