@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	//"log"
@@ -20,10 +21,10 @@ type mqttUserdData struct {
 func main() {
 	ueData := mqttUserdData{}
 	ueData.log = &mqttClientLog{}
-	ueData.log.Init(os.Stdout, LogLevelDebug)
+	ueData.log.Init(os.Stdout, LogLevelDebug|LogLevelInfo|LogLevelError)
 	ueData.log.Info("MQTT-Client start...")
 
-	mqttPackageTraceInit(os.Stdout, MqttTraceTypeDebug|MqttTraceTypeError, 0)
+	//mqttPackageTraceInit(os.Stdout, MqttTraceTypeDebug|MqttTraceTypeError, 0)
 	opts := mqtt.NewClientOptions().AddBroker("tcp://183.230.40.96:1883").SetClientID("Test-Mqtt")
 	opts.SetKeepAlive(60 * time.Second)
 	opts.SetDefaultPublishHandler(f)
@@ -44,18 +45,28 @@ func main() {
 	}
 
 	for i := 0; i < 5; i++ {
-		text := `{
-"id": 123,
-"dp": {
-"temperatrue": [{
-"v": 30,
-}],
-"power": [{
-"v": 4.5,
-}]
-}
-}`
-		token := c.Publish("$sys/309606/Test-Mqtt/dp/post/json", 1, false, text)
+		text := date{
+			Id: 123,
+			Dp: DpType{
+				Tp: []TpData{
+					{
+						V: 30,
+					},
+				},
+				Power: []PowerData{
+					{
+						V: 4.5,
+					},
+				},
+			},
+		}
+		textString, err := json.Marshal(text)
+		if err != nil {
+			ueData.log.Error("Failed to Marshal(text); Err: %v",err)
+			return
+		}
+
+		token := c.Publish("$sys/309606/Test-Mqtt/dp/post/json", 1, false, textString)
 		token.Wait()
 		time.Sleep(20 * time.Second)
 	}
