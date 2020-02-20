@@ -19,6 +19,7 @@ type mqttUserdData struct {
 }
 
 func main() {
+	AddConfig("config")
 	ueData := mqttUserdData{}
 	ueData.log = &mqttClientLog{}
 	ueData.log.Init(os.Stdout, LogLevelDebug|LogLevelInfo|LogLevelError)
