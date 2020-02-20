@@ -1,0 +1,17 @@
+{
+	"OneNet": {
+		"Client-id":   "Test-Mqtt",
+		"KeepAlive":   60,
+		"PingTimeout": 1,
+		"Username":    "309606",
+        "Server": {
+            "host": "183.230.40.96",
+            "port": 1883,
+        },
+	},
+	"Db": {
+		"host": "redis-master",
+		"port": 6379,
+	},
+	"log-level": "debug",
+}
