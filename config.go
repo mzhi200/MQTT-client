@@ -19,8 +19,9 @@ type TokenCfg struct {
 type OneNet struct {
 	ProductId   string `json:"Product-id" mapstructure:"Product-id"`
 	Server      Server `json:"Server" mapstructure:"Server"`
-	EquipName   string `json:"Equipment-name" mapstructure:"Equipment-name"`
-	EquipKey    string `json:"Equipment-key" mapstructure:"Equipment-key"`
+	EquipName   string `json:"Device-name" mapstructure:"Device-name"`
+	EquipId     string `json:"Device-id" mapstructure:"Device-id"`
+	EquipKey    string `json:"Device-key" mapstructure:"Device-key"`
 	KeepAlive   uint32 `json:"KeepAlive" mapstructure:"KeepAlive"`
 	PingTimeout uint32 `json:"PingTimeout" mapstructure:"PingTimeout"`
 	Token       TokenCfg `json:"Token" mapstructure:"Token"`

@@ -5,8 +5,9 @@
 			"host": "183.230.40.96",
 			"port": 1883
 		},
-		"Equipment-name": "Test-Mqtt",
-		"Equipment-key": "RXiEzUj+JrJzFddS1Z068b/gTSxuDWzlCjVCXJf6Pvc=",
+		"Device-name": "Test-Mqtt",
+		"Device-id": "579853097",
+		"Device-key": "RXiEzUj+JrJzFddS1Z068b/gTSxuDWzlCjVCXJf6Pvc=",
 		"KeepAlive": 60,
 		"PingTimeout": 1,
 		"Token": {
