@@ -4,10 +4,16 @@
 		"KeepAlive":   60,
 		"PingTimeout": 1,
 		"Username":    "309606",
+		"AccessKey":   "RXiEzUj+JrJzFddS1Z068b/gTSxuDWzlCjVCXJf6Pvc=",
         "Server": {
             "host": "183.230.40.96",
             "port": 1883
-        }
+        },
+		"Token": {
+			"version": "2018-10-31",
+			"et": "2023-01-03 16:51:59",
+			"method": "sha256"
+		}
 	},
 	"Db": {
 		"host": "redis-master",
