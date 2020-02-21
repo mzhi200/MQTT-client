@@ -1,11 +1,13 @@
 package main
 
 import (
-	"log"
-	"sync"
-	"io"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"errors"
 	"fmt"
+	"io"
+	"log"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"os"
+	"sync"
 )
 
 type mqttTraceType uint8
@@ -102,4 +104,39 @@ func (l *mqttClientLog) Error(fmtString string, args...interface{}) {
 		msg := fmt.Sprintf(fmtString, args...)
 		l.logger.Printf(msg)
 	}
+}
+
+//log level: debug > warn > info > error
+func GetLogLevelFromConfig() (ll logLevelFlag, err error) {
+	ll = 0
+	if config.LogLevel != "" {
+		switch config.LogLevel {
+		case "debug":
+			ll |= LogLevelDebug
+			fallthrough
+		case "warn":
+			ll |= LogLevelWarn
+			fallthrough
+		case "info":
+			ll |= LogLevelInfo
+			fallthrough
+		case "error":
+			ll |= LogLevelError
+		case "all":
+			ll = LogLevelAll
+		default:
+			err = errors.New(fmt.Sprintf("Unknown Log Level: %s", config.LogLevel))
+		}
+	}
+	return
+}
+
+var newLog = func (out io.Writer) mqttLog {
+	log := &mqttClientLog{}
+	if out != nil {
+		log.Init(out, ue.logLevel)
+	} else {
+		log.Init(os.Stdout, ue.logLevel)
+	}
+	return log
 }
