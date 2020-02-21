@@ -16,11 +16,11 @@ var receiveMqttMsgFromPeer mqtt.MessageHandler = func(client mqtt.Client, msg mq
 func oneNetClientConfig(config Configuration) (*mqtt.ClientOptions, error) {
 	//mqttPackageTraceInit(os.Stdout, MqttTraceTypeDebug|MqttTraceTypeError, 0)
 	ipPort := fmt.Sprintf("tcp://%s:%d", config.OneNet.Server.Host, config.OneNet.Server.Port)
-	opts := mqtt.NewClientOptions().AddBroker(ipPort).SetClientID(config.OneNet.ClientId)
+	opts := mqtt.NewClientOptions().AddBroker(ipPort).SetClientID(config.OneNet.EquipName)
 	opts.SetKeepAlive(time.Duration(config.OneNet.KeepAlive) * time.Second)
 	opts.SetDefaultPublishHandler(receiveMqttMsgFromPeer)
 	opts.SetPingTimeout(time.Duration(config.OneNet.PingTimeout) * time.Second)
-	opts.Username = config.OneNet.Username
+	opts.Username = config.OneNet.ProductId
 
 	tk := &Token{}
 	tokData, err := tk.TokenGenerateFun()

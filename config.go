@@ -17,12 +17,12 @@ type TokenCfg struct {
 	Method  string `json:"method" mapstructure:"method"`
 }
 type OneNet struct {
-	ClientId    string `json:"Client-id" mapstructure:"Client-id"`
+	ProductId   string `json:"Product-id" mapstructure:"Product-id"`
+	Server      Server `json:"Server" mapstructure:"Server"`
+	EquipName   string `json:"Equipment-name" mapstructure:"Equipment-name"`
+	EquipKey    string `json:"Equipment-key" mapstructure:"Equipment-key"`
 	KeepAlive   uint32 `json:"KeepAlive" mapstructure:"KeepAlive"`
 	PingTimeout uint32 `json:"PingTimeout" mapstructure:"PingTimeout"`
-	Username    string `json:"Username" mapstructure:"Username"`
-	AccessKey    string `json:"AccessKey" mapstructure:"AccessKey"`
-	Server      Server `json:"Server" mapstructure:"Server"`
 	Token       TokenCfg `json:"Token" mapstructure:"Token"`
 }
 type Configuration struct {

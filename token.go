@@ -25,7 +25,7 @@ func (tk *Token) InitTokenStruct() (err error){
 	var mac hash.Hash
 	tk.Version = config.OneNet.Token.Version
 	tk.Method = config.OneNet.Token.Method
-	tk.Res = fmt.Sprintf("products/%s/devices/%s", config.OneNet.Username, config.OneNet.ClientId)
+	tk.Res = fmt.Sprintf("products/%s/devices/%s", config.OneNet.ProductId, config.OneNet.EquipName)
 	t, err := time.ParseInLocation("2006-01-02 15:04:05", config.OneNet.Token.Et, time.Local)
 	if err != nil{
 		return
@@ -35,7 +35,7 @@ func (tk *Token) InitTokenStruct() (err error){
 	//get signatureMethod
 	//StringForSignature Format: et + '\n' + method + '\n' + res+ '\n' + version
 	stringForSignature := fmt.Sprintf("%d\n%s\n%s\n%s", tk.Et, tk.Method, tk.Res, tk.Version)
-	DcAccKey, err :=base64.StdEncoding.DecodeString(config.OneNet.AccessKey)
+	DcAccKey, err :=base64.StdEncoding.DecodeString(config.OneNet.EquipKey)
 	if err != nil{
 		return
 	}
