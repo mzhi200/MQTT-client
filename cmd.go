@@ -1,15 +1,16 @@
 package main
 import(
-	"encoding/json"
 	"fmt"
 )
 
 var (
 	help = [...]string{
-		"r e:   Connect mqtt server",
+		"r c:   Connect mqtt server",
 		"r d:   Disconnect mqtt server",
 		"r s:   Subscribe event",
 		"r u:   Unsubscribe event",
+		"r l:   Publish Login",
+		"r o:   Publish Logout",
 		"r p:   Publish Data",
 	}
 )
@@ -28,7 +29,7 @@ func triggerCommandFun() {
 		//fmt.Printf("cmd num: %d cmd: %+v\n", num, cmd)
 		if cmd[0] == "r" {
 			switch cmd[1] {
-			case "e":
+			case "c":
 				//Connect mqtt server
 				ue.client, err = oneNetConnect(config)
 				if err != nil {
@@ -36,11 +37,59 @@ func triggerCommandFun() {
 					return
 				}
 
+			case "d":
+				//Disconnect mqtt server
+				ue.client.Disconnect(250)
+
 			case "s":
 				//Subscribe event
-				err = ue.subscribeEven("#")
+				err = ue.subscribeEven(TopicSubAllEv)
 				if err != nil {
 					log.Error("Failed to Subscribe; Err: %v", err)
+					return
+				}
+
+			case "u":
+				//Unsubscribe event
+				err = ue.unSubscribeEven(TopicSubAllEv)
+				if err != nil {
+					log.Error("Failed to UnSubscribe; Err: %v", err)
+					return
+				}
+
+			case "l":
+				//Publish Login
+				login := date{
+					Id: 123,
+					Dp: DpType{
+						MsgType: []MessageType{
+							{
+								V: LOGIN,
+							},
+						},
+					},
+				}
+				ue.publishData(login)
+				if err != nil {
+					log.Error("Failed to Publish; Err: %v", err)
+					return
+				}
+
+			case "o":
+				//Publish Login
+				logout := date{
+					Id: 123,
+					Dp: DpType{
+						MsgType: []MessageType{
+							{
+								V: LOGOUT,
+							},
+						},
+					},
+				}
+				ue.publishData(logout)
+				if err != nil {
+					log.Error("Failed to Publish; Err: %v", err)
 					return
 				}
 
@@ -59,30 +108,18 @@ func triggerCommandFun() {
 								V: 4.5,
 							},
 						},
+						MsgType: []MessageType{
+							{
+								V: DP,
+							},
+						},
 					},
 				}
-				textString, err := json.Marshal(text)
-				if err != nil {
-					log.Error("Failed to Marshal(text); Err: %v",err)
-					return
-				}
-				ue.publishData("dp/post/json", textString)
+				ue.publishData(text)
 				if err != nil {
 					log.Error("Failed to Publish; Err: %v", err)
 					return
 				}
-
-			case "u":
-				//Unsubscribe event
-				err = ue.unSubscribeEven("#")
-				if err != nil {
-					log.Error("Failed to UnSubscribe; Err: %v", err)
-					return
-				}
-
-			case "d":
-				//Disconnect mqtt server
-				ue.client.Disconnect(250)
 
 			default:
 				fmt.Println("CMD List:")
