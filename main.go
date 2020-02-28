@@ -40,6 +40,8 @@ func main() {
 	//cmd
 	go triggerCommandFun()
 
+	go server("8000")
+
 	//Handle Event
 	for {
 		select {
