@@ -9,7 +9,7 @@ import (
 )
 
 type clienData struct {
-	id int
+	Id uint32 `json:"id"`
 }
 
 func CmdHandler(w http.ResponseWriter, r *http.Request) {
