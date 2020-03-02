@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
+	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/gorilla/mux v1.7.4
 	github.com/spf13/viper v1.6.2
 	golang.org/x/crypto v0.0.0-20200219234226-1ad67e1f0ef4 // indirect
