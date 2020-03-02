@@ -4,8 +4,7 @@ FROM golang:1.12.14 as Builder
 WORKDIR /opt/MQTT-client
 COPY . .
 
-RUN go build -mod=vendor -tags netgo
-
+RUN GOOS=linux go build -mod=vendor -tags netgo
 
 #Execute
 #FROM scratch
