@@ -28,6 +28,8 @@ func main() {
 	//update logLevel
 	log = newLog(nil)
 
+	mqttGwDbinit()
+
 	ue.client, err = oneNetConnect(config)
 	if err != nil {
 		log.Error("Failed to Connect; Err: %v", err)

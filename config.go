@@ -26,9 +26,14 @@ type OneNet struct {
 	PingTimeout uint32 `json:"PingTimeout" mapstructure:"PingTimeout"`
 	Token       TokenCfg `json:"Token" mapstructure:"Token"`
 }
+type DbConfiguration struct {
+	Host    string `json:"host" mapstructure:"host"`
+	TcpPort uint16 `json:"tcp-port" mapstructure:"port"`
+}
 type Configuration struct {
 	OneNet   OneNet `json:"OneNet" mapstructure:"OneNet"`
 	LogLevel string `json:"log-level" mapstructure:"log-level"`
+	Db       DbConfiguration  `json:"log-level" mapstructure:"Db"`
 }
 
 func AddConfig(name string) (c *viper.Viper) {

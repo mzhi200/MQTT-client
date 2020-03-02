@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/go-redis/redis"
 )
 
 type UserdData struct {
 	logLevel logLevelFlag
 	client   mqtt.Client
+	db       *redis.Client
 	event    chan mqtt.Message
 }
 

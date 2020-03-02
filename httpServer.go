@@ -8,27 +8,38 @@ import (
 	"time"
 )
 
-type clienData struct {
-	Id uint32 `json:"id"`
+type DeviceData struct {
+	Power float32 `json:"power,omitempty"`
+	Tp    uint32 `json:"tp,omitempty"`
 }
 
-func CmdHandler(w http.ResponseWriter, r *http.Request) {
+type DeviceMsg struct {
+	Event string `json:"event"`
+	Data  DeviceData `json:"data,omitempty"`
+}
+
+func EventHandler(w http.ResponseWriter, r *http.Request) {
+	log := newLog(nil)
 	w.WriteHeader(http.StatusOK)
+
+	vars := mux.Vars(r)
+	deviceId := vars["device-id"]
+	log.Debug("Device-id = %v", deviceId)
 
 	len1 := r.ContentLength
 	data := make([]byte, len1)
 	r.Body.Read(data)
-	clData := clienData{}
-	err := json.Unmarshal(data, &clData)
+	deviceMsg := DeviceMsg{}
+	err := json.Unmarshal(data, &deviceMsg)
 	if err != nil {
 		return
 	}
-	fmt.Printf("clData: %v\n", clData)
+	fmt.Printf("deviceMsg: %v\n", deviceMsg)
 }
 
 func server(port string) {
 	r := mux.NewRouter()
-	r.HandleFunc("/cmd", CmdHandler).Methods("POST")
+	r.HandleFunc("/device/{device-id}/event", EventHandler).Methods("POST")
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         fmt.Sprintf(":%s", port),

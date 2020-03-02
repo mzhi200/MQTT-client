@@ -1,0 +1,155 @@
+#!/bin/bash
+
+if [ $# -eq 2 ]; then
+    cmd=$1
+    scope=$2
+elif [ $# -eq 3 ]; then
+    cmd=$1
+    scope=$2
+    nf=$3
+else
+    echo $0 \<cmd\> \<scope\>
+    echo "cmd: create, delete"
+    echo "scope: all, apps, infra, mqtt"
+    echo ""
+    echo $0 config \<nf\>
+    echo "nf: all, or one of ..."
+    echo ""
+    echo $0 show config \<nf\>
+    echo "nf: all, or one of ..."
+    echo ""
+    echo $0 update image \<nf\>
+    echo "nf: all, or one of ..."
+    echo ""
+    echo 
+    exit
+fi
+
+[[ ! -z "$MQTT_TEST_DIR" ]] || echo "You can use env MQTT_TEST_DIR to specify dirtory of config files"
+
+# the directory of all the config files
+if [[ ! -z "$MQTT_TEST_DIR" ]]; then
+    echo ""
+    WORKDIR=$MQTT_TEST_DIR
+else
+    WORKDIR=$PWD
+fi
+
+echo "Work direcotry: $WORKDIR "
+
+if [[ ! -z "$MQTT_TEST_NETWORKNAME" ]]; then
+    nwname=$MQTT_TEST_NETWORKNAME
+    echo "Using env MQTT_TEST_NETWORKNAME=$nwname for docker network"
+else
+    nwname="mqtt-nw"
+    echo "Using default docker network name: $nwname"
+    echo "network name can be set using env MQTT_TEST_NETWORKNAME"
+fi
+
+
+# Casa images
+MQTTIMG="mqtt:latest"
+
+# Config files
+MQTT_JSON="$WORKDIR/config.json"
+
+dockerip() {
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$@"
+}
+
+check_mqtt_files() {
+    declare -a arr=($MQTT_JSON )
+    for file in "${arr[@]}"
+do
+    if [ ! -f $file ]; then
+        echo "$file doesn't exist"
+        exit
+    fi
+done
+}
+
+create_infra() {
+    #network
+    [ -n "$(docker network ls | grep $nwname)" ] && docker network rm $nwname
+    docker network create --driver=bridge --subnet=168.1.10.0/24 --gateway=168.1.10.1 $nwname
+
+    #redis:
+    [ -n "$(docker container ls --all | grep redis-master)" ] && docker container rm redis-master
+    docker run -itd --network $nwname --name redis-master -p 6379:6379 redis redis-server
+
+    #redis:
+    #[ -n "$(docker container ls --all | grep redis-cluster)" ] && docker container rm redis-cluster
+    #docker run -itd --network $nwname --name redis-cluster grokzen/redis-cluster
+}
+
+
+create_mqtt() {
+    #MQTT:
+    [ -n "$(docker container ls --all | grep mqtt)" ] && docker container rm mqtt
+    docker run -itd --network $nwname --log-driver json-file --privileged --name mqtt -v $MQTT_JSON:/etc/config/config.json $MQTTIMG
+}
+
+
+create_apps() {
+    check_mqtt_files
+    create_mqtt
+}
+
+create_all() {
+    create_infra	
+    create_apps
+}
+
+delete_mqtt() {
+    docker stop mqtt
+    docker rm mqtt
+}
+
+delete_apps() {
+    delete_mqtt
+}
+
+delete_infra() {
+    docker stop redis-master
+    docker stop redis-cluster
+    docker network rm $nwname
+    docker rm redis-master
+    #docker rm redis-cluster
+}
+
+delete_all() {
+    delete_apps
+    delete_infra
+}
+
+pull_image_mqtt() {
+    echo "pull latest $MQTTIMG"
+    docker pull $MQTTIMG
+}
+
+
+pull_image_all() {
+    pull_image_mqtt
+}
+
+if [ $cmd == "create" ]; then
+
+    echo ""
+    echo "These are the images to be used:"
+    echo ""
+    echo "mqtt:     $MQTTIMG"
+    echo ""
+
+    echo "All required config files should be at $WORKDIR"
+    echo ""
+
+    create_$scope
+elif [ $cmd == "config" ]; then
+    config_$scope
+elif [ $cmd == "delete" ]; then
+    delete_$scope
+elif [ $cmd == "show" ] && [ $scope == "config" ]; then
+    show_config_$nf
+elif [ $cmd == "update" ] && [ $scope == "image" ]; then
+    pull_image_$nf
+fi
