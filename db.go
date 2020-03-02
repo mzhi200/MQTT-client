@@ -12,5 +12,11 @@ func mqttGwDbinit() (err error) {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+	pong, err1 := ue.db.Ping().Result()
+	if err1 != nil{
+		err = err1
+		return
+	}
+	fmt.Printf("Redis ping: %v\n", pong)
 	return
 }

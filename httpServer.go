@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+	"strconv"
 )
 
 type DeviceData struct {
@@ -35,6 +36,53 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("deviceMsg: %v\n", deviceMsg)
+
+	id, err := strconv.ParseUint(deviceId, 10, 32)
+	oneNetMsg := date{Id: uint32(id)}
+	switch deviceMsg.Event {
+	case "login":
+		oneNetMsg.Dp.MsgType = []MessageType{{V: LOGIN,}}
+		err := ue.db.Set(deviceId, deviceMsg.Event, 0).Err()
+		if err != nil {
+			panic(err)
+		}
+	case "logout":
+		oneNetMsg.Dp.MsgType = []MessageType{{V: LOGOUT,}}
+		err := ue.db.Del(deviceId).Err()
+		if err != nil {
+			panic(err)
+		}
+
+	case "Data":
+		oneNetMsg.Dp.MsgType = []MessageType{{V: DP,}}
+		val, err := ue.db.Get(deviceId).Result()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("key: %s, val: %s\n", deviceId, val)
+
+	default:
+		log.Error("Unknow Event: %s", deviceMsg.Event)
+		return
+	}
+	ue.publishData(oneNetMsg)
+	if err != nil {
+		log.Error("Failed to Publish; Err: %v", err)
+		return
+	}
+/*
+	if ue.db != nil {
+		err := ue.db.Set(deviceId, deviceMsg.Event, 0).Err()
+		if err != nil {
+			panic(err)
+		}
+		val, err := ue.db.Get(deviceId).Result()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("key: %s, val: %s\n", deviceId, val)
+	}
+*/
 }
 
 func server(port string) {

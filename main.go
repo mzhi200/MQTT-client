@@ -28,7 +28,11 @@ func main() {
 	//update logLevel
 	log = newLog(nil)
 
-	mqttGwDbinit()
+	err = mqttGwDbinit()
+	if err != nil {
+		log.Error("Failed to Db init; Err: %v", err)
+		return
+	}
 
 	ue.client, err = oneNetConnect(config)
 	if err != nil {
