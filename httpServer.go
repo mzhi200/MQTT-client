@@ -21,7 +21,6 @@ type DeviceMsg struct {
 
 func EventHandler(w http.ResponseWriter, r *http.Request) {
 	log := newLog(nil)
-	w.WriteHeader(http.StatusOK)
 
 	vars := mux.Vars(r)
 	deviceId := vars["device-id"]
@@ -38,51 +37,26 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("deviceMsg: %v\n", deviceMsg)
 
 	id, err := strconv.ParseUint(deviceId, 10, 32)
-	oneNetMsg := date{Id: uint32(id)}
+
+	dv := newDeviceCb()
+	dv.deviceId = uint32(id)
+
+	ev := event{}
 	switch deviceMsg.Event {
 	case "login":
-		oneNetMsg.Dp.MsgType = []MessageType{{V: LOGIN,}}
-		err := ue.db.Set(deviceId, deviceMsg.Event, 0).Err()
-		if err != nil {
-			panic(err)
-		}
+		ev.eventID = LoginEv
 	case "logout":
-		oneNetMsg.Dp.MsgType = []MessageType{{V: LOGOUT,}}
-		err := ue.db.Del(deviceId).Err()
-		if err != nil {
-			panic(err)
-		}
-
-	case "Data":
-		oneNetMsg.Dp.MsgType = []MessageType{{V: DP,}}
-		val, err := ue.db.Get(deviceId).Result()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("key: %s, val: %s\n", deviceId, val)
-
+		ev.eventID = LogoutEv
+	case "data":
+		ev.eventID = DataEv
+		ev.msg = deviceMsg.Data
 	default:
-		log.Error("Unknow Event: %s", deviceMsg.Event)
+		log.Error("Unknown Event: %s", deviceMsg.Event)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	ue.publishData(oneNetMsg)
-	if err != nil {
-		log.Error("Failed to Publish; Err: %v", err)
-		return
-	}
-/*
-	if ue.db != nil {
-		err := ue.db.Set(deviceId, deviceMsg.Event, 0).Err()
-		if err != nil {
-			panic(err)
-		}
-		val, err := ue.db.Get(deviceId).Result()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("key: %s, val: %s\n", deviceId, val)
-	}
-*/
+	dv.chEvent <- ev
+	w.WriteHeader(http.StatusOK)
 }
 
 func server(port string) {

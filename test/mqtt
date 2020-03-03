@@ -86,7 +86,7 @@ create_infra() {
 create_mqtt() {
     #MQTT:
     [ -n "$(docker container ls --all | grep mqtt)" ] && docker container rm mqtt
-    docker run -itd --network $nwname --log-driver json-file --privileged --name mqtt -v $MQTT_JSON:/etc/config/config.json $MQTTIMG
+    docker run -itd --network $nwname --log-driver json-file --privileged --name mqtt -v $MQTT_JSON:/etc/config/config.json $MQTTIMG ./MQTT-client
 }
 
 
@@ -111,7 +111,7 @@ delete_apps() {
 
 delete_infra() {
     docker stop redis-master
-    docker stop redis-cluster
+    #docker stop redis-cluster
     docker network rm $nwname
     docker rm redis-master
     #docker rm redis-cluster

@@ -20,3 +20,8 @@ func mqttGwDbinit() (err error) {
 	fmt.Printf("Redis ping: %v\n", pong)
 	return
 }
+
+func GetDeviceDbKey(id uint32) string {
+	key := fmt.Sprintf("MqttDeviceId:%d", id)
+	return key
+}

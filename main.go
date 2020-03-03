@@ -44,7 +44,12 @@ func main() {
 	defer close(ue.event)
 
 	//cmd
-	go triggerCommandFun()
+	//go triggerCommandFun()
+	err = ue.subscribeEven(TopicSubAllEv)
+	if err != nil {
+		log.Error("Failed to Subscribe; Err: %v", err)
+		return
+	}
 
 	go server("8000")
 
